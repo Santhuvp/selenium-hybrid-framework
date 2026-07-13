@@ -9,7 +9,9 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.annotations.*;
@@ -66,19 +68,34 @@ public class Base_Class {
     @BeforeClass
     public static void launchBrowser(@Optional("chrome") String browser) {
         WebDriver localdriver;
+        boolean isCI = System.getenv("CI") != null;   // GitHub Actions sets this automatically
+
         switch (browser.toLowerCase()) {
             case "firefox":
                 WebDriverManager.firefoxdriver().setup();
-                localdriver = new FirefoxDriver();
+                FirefoxOptions firefoxOptions = new FirefoxOptions();
+                if (isCI) {
+                    firefoxOptions.addArguments("--headless");
+                }
+                localdriver = new FirefoxDriver(firefoxOptions);
                 break;
+
             case "chrome":
                 WebDriverManager.chromedriver().setup();
-                localdriver = new ChromeDriver();
+                ChromeOptions chromeOptions = new ChromeOptions();
+                if (isCI) {
+                    chromeOptions.addArguments("--headless=new");
+                    chromeOptions.addArguments("--no-sandbox");
+                    chromeOptions.addArguments("--disable-dev-shm-usage");
+                    chromeOptions.addArguments("--window-size=1920,1080"); // headless needs explicit size
+                }
+                localdriver = new ChromeDriver(chromeOptions);
                 break;
 
             default:
                 throw new IllegalStateException("Unexpected value: " + browser.toLowerCase());
         }
+
         localdriver.manage().window().maximize();
         localdriver.manage().timeouts().implicitlyWait(Duration.ofSeconds(Framework_Constants.IMPLICIT_WAIT));
         localdriver.get(ReadDataFromProperty.prop.getProperty("url"));
