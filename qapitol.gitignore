@@ -1,0 +1,15 @@
+# Maven
+target/
+
+# IntelliJ
+.idea/
+*.iml
+out/
+
+# Reports & Screenshots (generated at runtime)
+reports/
+screenshots/
+
+# OS files
+.DS_Store
+Thumbs.db

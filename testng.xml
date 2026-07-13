@@ -1,0 +1,16 @@
+<suite name="Suite" parallel="classes" thread-count="2">
+
+    <listeners>
+        <listener class-name="listeners.Listner"/>
+    </listeners>
+
+    <test name="ChromeTests">
+        <parameter name="browser" value="chrome"/>
+        <classes>
+            <class name="testscripts.LoginTest"/>
+            <class name="testscripts.Computer"/>
+            <class name="testscripts.Buy_Electronics"/>
+        </classes>
+    </test>
+
+</suite>
