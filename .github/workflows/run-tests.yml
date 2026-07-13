@@ -1,37 +1,34 @@
-name: Run Selenium TestNG Suite
+name: Sanity Test Automation
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
+  schedule:
+    - cron: '0 2 * * *'      # Runs every day at 2 AM UTC
+  workflow_dispatch:          # Optional: allows manual trigger from GitHub UI
 
 jobs:
-  test:
+  run-tests:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
           java-version: '21'
+          distribution: 'temurin'
 
-      - name: Cache Maven packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+      - name: Run Selenium Sanity Suite
+        run: mvn clean test -DsuiteXmlFile=sanity.xml
 
-      - name: Run tests with Maven
-        run: mvn clean test
-
-      - name: Upload Extent Report
+      - name: Upload Test Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: extent-report
-          path: reports/
+          name: sanity-test-report
+          path: target/surefire-reports/
