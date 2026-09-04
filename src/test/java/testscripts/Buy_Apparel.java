@@ -1,31 +1,33 @@
 package testscripts;
 
+import base.BaseTest;
+import base.Base_Class;
 import org.testng.annotations.Test;
 import pomrepo.ApparalandShoes;
 import pomrepo.CheckoutPOM;
 
-import static base.Base_Class.getdriver;
-
-public class Buy_Apparel {
+public class Buy_Apparel extends Base_Class {
 
     @Test
     public void buy_Apparal()
     {
+        extent.createTest("Buy Apparel").assignAuthor("Santhosh");
         ApparalandShoes ap = new ApparalandShoes(getdriver());
-        ap.getAppshoe().click();
-        ap.getProductlink().click();
-        ap.getAddToCart().click();
+        clickElement(ap.getAppshoe());
+        clickElement(ap.getProductlink());
+        clickElement(ap.getAddToCart());
         CheckoutPOM checkoutPOM = new CheckoutPOM(getdriver());
-        checkoutPOM.getCartLink().click();
-        checkoutPOM.getTermsCheckbox().click();
-        checkoutPOM.getCheckoutButton().click();
-        checkoutPOM.getConfirmShipmentAddressContinueButton().click();
-        checkoutPOM.getShippingAddressContinueButton().click();
-        checkoutPOM.getShippingMethodContinueButton().click();
-        checkoutPOM.getPaymentMethodContinue().click();
-        checkoutPOM.getPaymentInformationConfirmationContinue().click();
-        checkoutPOM.getCheckoutionConfirmationContinue().click();
+        clickElement(checkoutPOM.getCartLink());
+        clickElement(checkoutPOM.getTermsCheckbox());
+        clickElement(checkoutPOM.getCheckoutButton());
+        clickElement(checkoutPOM.getConfirmShipmentAddressContinueButton());
+        clickElement(checkoutPOM.getShippingAddressContinueButton());
+        clickElement(checkoutPOM.getShippingMethodContinueButton());
+        clickElement(checkoutPOM.getPaymentMethodContinue());
+        clickElement(checkoutPOM.getPaymentInformationConfirmationContinue());
+        clickElement(checkoutPOM.getCheckoutionConfirmationContinue());
         System.out.println("The Order ID is "+checkoutPOM.getOrderID().getText());
     }
 
 }
+

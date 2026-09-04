@@ -20,15 +20,15 @@ public class Buy_Electronics extends Base_Class {
         clickElement(ec.getSmartPhone());
         clickElement(ec.getAddToCart());
         CheckoutPOM checkoutPOM = new CheckoutPOM(getdriver());
-        checkoutPOM.getCartLink().click();
-        checkoutPOM.getTermsCheckbox().click();
-        checkoutPOM.getCheckoutButton().click();
-        checkoutPOM.getConfirmShipmentAddressContinueButton().click();
-        checkoutPOM.getShippingAddressContinueButton().click();
-        checkoutPOM.getShippingMethodContinueButton().click();
-        checkoutPOM.getPaymentMethodContinue().click();
-        checkoutPOM.getPaymentInformationConfirmationContinue().click();
-        checkoutPOM.getCheckoutionConfirmationContinue().click();
+        clickElement(checkoutPOM.getCartLink());
+        clickElement(checkoutPOM.getTermsCheckbox());
+        clickElement(checkoutPOM.getCheckoutButton());
+        clickElement(checkoutPOM.getConfirmShipmentAddressContinueButton());
+        clickElement(checkoutPOM.getShippingAddressContinueButton());
+        clickElement(checkoutPOM.getShippingMethodContinueButton());
+        clickElement(checkoutPOM.getPaymentMethodContinue());
+        clickElement(checkoutPOM.getPaymentInformationConfirmationContinue());
+        clickElement(checkoutPOM.getCheckoutionConfirmationContinue());
        System.out.println("The Order ID is "+checkoutPOM.getOrderID().getText());
 
 

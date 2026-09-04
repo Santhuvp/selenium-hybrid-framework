@@ -21,6 +21,7 @@ import utilties.ReadDataFromProperty;
 
 import java.io.IOException;
 import java.time.Duration;
+
 public class Base_Class {
 
     public static ThreadLocal<WebDriver> driver = new ThreadLocal<>();
@@ -28,8 +29,7 @@ public class Base_Class {
     public static ThreadLocal<ExtentTest> test = new ThreadLocal<>();
     public LoginPage loginPage;
 
-    public static WebDriver getdriver()
-    {
+    public static WebDriver getdriver() {
         return driver.get();
 
     }
@@ -64,17 +64,26 @@ public class Base_Class {
 
     }
 
-    @Parameters({"browser"})
+    @Parameters({ "browser" })
     @BeforeClass
     public static void launchBrowser(@Optional("chrome") String browser) {
         WebDriver localdriver;
-        boolean isCI = System.getenv("CI") != null;   // GitHub Actions sets this automatically
+        
+        // Check property file value (defaults to false if not present)
+        String headlessProp = ReadDataFromProperty.prop.getProperty("headless");
+        boolean defaultHeadless = "true".equalsIgnoreCase(headlessProp);
+
+        // System property overrides the property file config
+        String systemHeadless = System.getProperty("headless");
+        boolean isHeadless = (systemHeadless != null)
+                ? "true".equalsIgnoreCase(systemHeadless)
+                : (System.getenv("CI") != null || defaultHeadless);
 
         switch (browser.toLowerCase()) {
             case "firefox":
                 WebDriverManager.firefoxdriver().setup();
                 FirefoxOptions firefoxOptions = new FirefoxOptions();
-                if (isCI) {
+                if (isHeadless) {
                     firefoxOptions.addArguments("--headless");
                 }
                 localdriver = new FirefoxDriver(firefoxOptions);
@@ -83,7 +92,7 @@ public class Base_Class {
             case "chrome":
                 WebDriverManager.chromedriver().setup();
                 ChromeOptions chromeOptions = new ChromeOptions();
-                if (isCI) {
+                if (isHeadless) {
                     chromeOptions.addArguments("--headless=new");
                     chromeOptions.addArguments("--no-sandbox");
                     chromeOptions.addArguments("--disable-dev-shm-usage");
@@ -106,7 +115,7 @@ public class Base_Class {
     public void login() throws IOException {
         // Read credentials from Excel (Login sheet, row 0)
         Object[][] loginData = ReadDataFromExcel.getDatafromEcel("Login");
-        String email    = loginData[0][0].toString();
+        String email = loginData[0][0].toString();
         String password = loginData[0][1].toString();
 
         // Navigate directly to the login page for reliability
@@ -117,35 +126,29 @@ public class Base_Class {
         loginPage.getPassworField().sendKeys(password);
         loginPage.getLogin_btn().click();
 
-        // Explicit wait: wait until the 'Log out' link appears, confirming successful login
+        // Explicit wait: wait until the 'Log out' link appears, confirming successful
+        // login
         new WebDriverWait(getdriver(), Duration.ofSeconds(Framework_Constants.EXPLICIT_WAIT))
                 .until(ExpectedConditions.presenceOfElementLocated(
                         org.openqa.selenium.By.linkText("Log out")));
     }
 
-        @AfterMethod
-        public void logout()
-        {
-            loginPage = new LoginPage(getdriver());
-            loginPage.getLogout().click();
-        }
+    @AfterMethod
+    public void logout() {
+        loginPage = new LoginPage(getdriver());
+        loginPage.getLogout().click();
+    }
 
-        @AfterClass
-                public void closeBrowser()
-        {
-              getdriver().quit();
-              driver.remove();
-
-        }
-
-        @AfterTest
-                public void tearDownReport()
-        {
-            extent.flush();
-        }
-
-
-
+    @AfterClass
+    public void closeBrowser() {
+        getdriver().quit();
+        driver.remove();
 
     }
 
+    @AfterTest
+    public void tearDownReport() {
+        extent.flush();
+    }
+
+}

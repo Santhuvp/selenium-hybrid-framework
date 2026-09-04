@@ -14,6 +14,7 @@ public class Listner implements ITestListener {
      * Called by TestNG when a test method fails.
      * Captures a screenshot using the current thread's WebDriver.
      */
+
     @Override
     public void onTestFailure(ITestResult result) {
         try {
