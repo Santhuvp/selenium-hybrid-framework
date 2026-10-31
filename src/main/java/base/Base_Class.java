@@ -5,7 +5,6 @@ import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.reporter.ExtentSparkReporter;
 import constants.Framework_Constants;
 import io.github.bonigarcia.wdm.WebDriverManager;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -44,16 +43,7 @@ public class Base_Class {
         }
     }
 
-    public void sendKeysToElement(WebElement element, String text) {
-        try {
-            new WebDriverWait(getdriver(), Duration.ofSeconds(Framework_Constants.EXPLICIT_WAIT))
-                    .until(ExpectedConditions.visibilityOf(element));
-            element.clear();
-            element.sendKeys(text);
-        } catch (Exception e) {
-            utilties.JS_Utility.jsCText(getdriver(), text, element);
-        }
-    }
+
 
     @BeforeTest
     public static void setupReport() throws IOException {
