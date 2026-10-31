@@ -16,7 +16,6 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.annotations.*;
 import pomrepo.LoginPage;
-import utilties.JS_Utility;
 import utilties.ReadDataFromExcel;
 import utilties.ReadDataFromProperty;
 
@@ -35,10 +34,14 @@ public class Base_Class {
 
     }
 
-    public void clickElement(By locator) {
-        WebElement el = new WebDriverWait(getdriver() ,Duration.ofSeconds(15))
-                .until(ExpectedConditions.presenceOfElementLocated(locator));
-        JS_Utility.jsClick(getdriver(), el);
+    public void clickElement(WebElement element) {
+        try {
+            new WebDriverWait(getdriver(), Duration.ofSeconds(Framework_Constants.EXPLICIT_WAIT))
+                    .until(ExpectedConditions.elementToBeClickable(element));
+            element.click();
+        } catch (Exception e) {
+            utilties.JS_Utility.jsClick(getdriver(), element);
+        }
     }
 
     public void sendKeysToElement(WebElement element, String text) {
