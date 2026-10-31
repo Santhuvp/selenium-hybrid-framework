@@ -20,7 +20,7 @@ pipeline {
 
         stage('Test') {
             steps {
-                sh 'mvn -B clean test'
+                sh 'mvn -B clean test -Dremote.url=http://selenium-chrome:4444 -Dheadless=true'
             }
         }
     }

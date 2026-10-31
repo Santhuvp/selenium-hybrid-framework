@@ -21,6 +21,11 @@ import utilties.ReadDataFromProperty;
 import java.io.IOException;
 import java.time.Duration;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import org.openqa.selenium.Capabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
+
 public class Base_Class {
 
     public static ThreadLocal<WebDriver> driver = new ThreadLocal<>();
@@ -58,37 +63,47 @@ public class Base_Class {
     @BeforeClass
     public static void launchBrowser(@Optional("chrome") String browser) {
         WebDriver localdriver;
-        
-        // Check property file value (defaults to false if not present)
+
         String headlessProp = ReadDataFromProperty.prop.getProperty("headless");
         boolean defaultHeadless = "true".equalsIgnoreCase(headlessProp);
 
-        // System property overrides the property file config
         String systemHeadless = System.getProperty("headless");
         boolean isHeadless = (systemHeadless != null)
                 ? "true".equalsIgnoreCase(systemHeadless)
                 : (System.getenv("CI") != null || defaultHeadless);
 
+        // NEW: if set, tests run on a remote Selenium (Grid/standalone) instead of locally
+        String remoteUrl = System.getProperty("remote.url");
+        boolean useRemote = remoteUrl != null && !remoteUrl.trim().isEmpty();
+
         switch (browser.toLowerCase()) {
             case "firefox":
-                WebDriverManager.firefoxdriver().setup();
                 FirefoxOptions firefoxOptions = new FirefoxOptions();
                 if (isHeadless) {
                     firefoxOptions.addArguments("--headless");
                 }
-                localdriver = new FirefoxDriver(firefoxOptions);
+                if (useRemote) {
+                    localdriver = createRemoteDriver(remoteUrl, firefoxOptions);
+                } else {
+                    WebDriverManager.firefoxdriver().setup();
+                    localdriver = new FirefoxDriver(firefoxOptions);
+                }
                 break;
 
             case "chrome":
-                WebDriverManager.chromedriver().setup();
                 ChromeOptions chromeOptions = new ChromeOptions();
                 if (isHeadless) {
                     chromeOptions.addArguments("--headless=new");
                     chromeOptions.addArguments("--no-sandbox");
                     chromeOptions.addArguments("--disable-dev-shm-usage");
-                    chromeOptions.addArguments("--window-size=1920,1080"); // headless needs explicit size
+                    chromeOptions.addArguments("--window-size=1920,1080");
                 }
-                localdriver = new ChromeDriver(chromeOptions);
+                if (useRemote) {
+                    localdriver = createRemoteDriver(remoteUrl, chromeOptions);
+                } else {
+                    WebDriverManager.chromedriver().setup();
+                    localdriver = new ChromeDriver(chromeOptions);
+                }
                 break;
 
             default:
@@ -99,6 +114,15 @@ public class Base_Class {
         localdriver.manage().timeouts().implicitlyWait(Duration.ofSeconds(Framework_Constants.IMPLICIT_WAIT));
         localdriver.get(ReadDataFromProperty.prop.getProperty("url"));
         driver.set(localdriver);
+    }
+
+    // NEW helper (add it in the same class)
+    private static WebDriver createRemoteDriver(String remoteUrl, Capabilities options) {
+        try {
+            return new RemoteWebDriver(new URL(remoteUrl), options);
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException("Invalid remote.url: " + remoteUrl, e);
+        }
     }
 
     @BeforeMethod
