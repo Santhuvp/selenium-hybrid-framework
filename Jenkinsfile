@@ -1,37 +1,39 @@
-pipeline{
-  agent any
+pipeline {
+    agent any
 
-  tools {
-    maven : 'Maven-3.9'
-  }
-
-  options {
-timeout(time : 30 , unit : 'MINUTES')
-timestamps()
-buildDiscarder(logRotator(numToKeepStr,'20'))
-
-  }
-
-  stages {
-    stage('Checkout')
-    {
-      steps {
-        checkout scm
-      }
-  }
-  stage('Test') {
-    sh 'mvn -B clean test'
-  }
-}
-  post{
-    always {
-      junit allowEmptyResults : true, testResults : "**/target/surefire-reports/*.xml"
+    tools {
+        maven 'Maven-3.9'          // name you set in Manage Jenkins > Tools
     }
-    unsuccessful {
-      archiveArtifacts artifacts : 'target/surefire-reports/**'  allowEmptyArchive : true
+
+    options {
+        timeout(time: 30, unit: 'MINUTES')
+        timestamps()
+        buildDiscarder(logRotator(numToKeepStr: '20'))
     }
-    cleanup {
-      cleanWs()
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'mvn -B clean test'
+            }
+        }
     }
-  }
+
+    post {
+        always {
+            junit allowEmptyResults: true, testResults: '**/target/surefire-reports/*.xml'
+        }
+        unsuccessful {
+            archiveArtifacts artifacts: 'target/surefire-reports/**', allowEmptyArchive: true
+        }
+        cleanup {
+            cleanWs()
+        }
+    }
 }
